@@ -15,26 +15,40 @@ import org.opencv.objdetect.CascadeClassifier;
 import org.opencv.objdetect.Objdetect;
 
 /**
- *
+ * Detector de rostros, detecta tanto frontal como de perfil.
+ * 
  * @author Paulo Andrade
+ * @version 1.0.0
  */
 public class FaceDetector
 {
+    EyesDetector ed;
+    SmileDetector sd;
     private final CascadeClassifier faceHaar; // Clasificadores 
     private final CascadeClassifier perfilFaceHaar;
-    private final CascadeClassifier eyesHaar;
-    int faceSize; // Tamaño del rostro a detectar
+    double scaleFactor; // Cuanto se reduce la imagen en cada escala de imagen
+    int minNeighbors; // Cuantos vecinos debe tener cada rectangulo candidato para concervarlo
+    int minSize; // Tamaño minimo para la busqueda del objeto
+    int flags; // Banderas
     
     /**
      * Constructor
      */
     public FaceDetector()
     {
+        // Inicializamos las clases externas
+        ed = new EyesDetector();
+        sd = new SmileDetector();
+        
         // Inicializamos los clasificadores
         faceHaar = new CascadeClassifier();
         perfilFaceHaar = new CascadeClassifier();
-        eyesHaar = new CascadeClassifier();
-        faceSize = 0;
+        
+        // Inicializamos las propiedades
+        scaleFactor = 1.1;
+        minNeighbors = 4;
+        minSize = 0;
+        flags = 0 | Objdetect.CASCADE_SCALE_IMAGE;
         
         // Cargamos los clasificadores
         loadClassifiers();
@@ -49,7 +63,6 @@ public class FaceDetector
         // cargamos los clasificadores cascada
         faceHaar.load(path+"haarcascade_frontalface_alt.xml");
         perfilFaceHaar.load(path+"haarcascade_profileface.xml");
-        eyesHaar.load(path+"haarcascade_eye.xml");
     }
     
     /**
@@ -71,16 +84,7 @@ public class FaceDetector
         Imgproc.equalizeHist(grayFrame, grayFrame);
         
         // Calculamos el tamaño minimo del rostro a detectar (20%)
-        if (this.faceSize == 0){
-            // Obtenemos el alto de la imagen (frame)
-            int height = grayFrame.rows();
-            
-            // verificamos que el minimo a detectar sea mayor a 0
-            if (Math.round(height * 0.2f) > 0){
-                // Asignamos el nuevo tamaño a detectar
-                this.faceSize = Math.round(height * 0.2f);
-            }
-        }
+        minSize = calcSize(grayFrame, 0.2F);
         
         // detectamos los rostros de frente (imagen donde detectaremos los objetos,
         // vector de cuadrados para los objetos detectados,
@@ -89,19 +93,24 @@ public class FaceDetector
         // flags,
         // tamaño minimo posible del objeto
         // tamaño maximo posible del objeto
-        faceHaar.detectMultiScale(grayFrame, faces, 1.1, 2, 0 | Objdetect.CASCADE_SCALE_IMAGE,
-                new Size(this.faceSize, this.faceSize), new Size());
+        faceHaar.detectMultiScale(grayFrame, faces, scaleFactor, minNeighbors,
+                flags, new Size(minSize, minSize), new Size());
         
         // verificamos si detecto rostros de frente
         if(faces.empty()){
             // Buscamos rostros de perfil
-            perfilFaceHaar.detectMultiScale(grayFrame, faces, 1.1, 2, 0 | Objdetect.CASCADE_SCALE_IMAGE,
-                    new Size(this.faceSize, this.faceSize), new Size());
+            perfilFaceHaar.detectMultiScale(grayFrame, faces, scaleFactor,
+                    minNeighbors, flags, new Size(minSize, minSize), new Size());
         }
         
-        // verificamos si hay rostros
+        // verificamos si hay rostros para buscar ojos
         if(!faces.empty()){
-            eyesDetector(m, grayFrame, faces);
+            ed.eyesDetector(m, grayFrame, faces);
+        }
+        
+        // verificamos si hay rostros para buscar sonrisa
+        if(!faces.empty()){
+            sd.smileDetector(m, grayFrame, faces);
         }
         
         return faceDraw(m, faces);
@@ -132,54 +141,24 @@ public class FaceDetector
     }
     
     /**
-     * Detector de ojos en un rostro
+     * Calculamos el tamaño minimo para el objeto a rastrear
      * 
-     * @param m Matriz original
-     * @param grayFrame Matriz original en escala de grises
-     * @param faces Matriz de rostros detectados
+     * @param grayFrame Matriz en escala de grises del cual obtendremos el tamaño
+     * @param minSize Tamaño minimo para buscar el objeto (0.2F)
      */
-    private void eyesDetector(Mat m, Mat grayFrame, MatOfRect faces)
+    private int calcSize(Mat grayFrame, float minSize)
     {
-        // Matriz para los objetos detectados (ojos)
-        MatOfRect eyes = new MatOfRect();
+        int faceSize = 0;
         
-        // Convertimos la matriz en un array (vector)
-        Rect[] facesArray = faces.toArray();
+        // Obtenemos el alto de la imagen (frame)
+        int height = grayFrame.rows();
 
-        // trabajamos en cada uno de los rostros
-        for(Rect rect: facesArray){
-            // Obtenemos el rectangulo donde vamos a trabajar
-            Rect rectCrop = new Rect(rect.x, rect.y , rect.width, rect.height);
-            // Obtenemos la matriz roi
-            Mat roiGray = grayFrame.submat(rectCrop);
-            Mat roiColor = m.submat(rectCrop);
-            
-            eyesHaar.detectMultiScale(roiGray, eyes);
-
-            // Dibujamos los rectangulos para los ojos
-            eyesDraw(roiColor, eyes);
+        // verificamos que el minimo a detectar sea mayor a 0
+        if (Math.round(height * minSize) > 0){
+            // Asignamos el nuevo tamaño a detectar
+            faceSize = Math.round(height * minSize);
         }
-    }
-    
-    /**
-     * Dibujamos rectangulos al detectar los ojos
-     * 
-     * @param m Matriz original
-     * @param faces Matriz con los rectangulos detectados
-     */
-    private void eyesDraw(Mat roi, MatOfRect eyes)
-    {
-        // Convertimos la matriz en un array (vector)
-        Rect[] eyesArray = eyes.toArray();
-
-        // Recorremos cada uno de los objetos
-        for (int i = 0; i < eyesArray.length; i++){
-            // m <- matriz original
-            // facesArray[i].tl() <- punto del objeto en x
-            // facesArray[i].br() <- punto del objeto en y
-            // new Scalar(0, 255, 0) <- color del rectangulo a dibujar
-            // 3 <- Espesor de la linea
-            Imgproc.rectangle(roi, eyesArray[i].tl(), eyesArray[i].br(), new Scalar(0, 0, 255), 2);
-        }
+        
+        return faceSize;
     }
 }
