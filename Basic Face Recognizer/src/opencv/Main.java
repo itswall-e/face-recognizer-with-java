@@ -23,16 +23,16 @@ public class Main
     // Cargamos las librerias dinamicas de OpenCV
     static{ System.loadLibrary(Core.NATIVE_LIBRARY_NAME); }
     
-    private static ScheduledExecutorService timer;
-    private static VideoCapture cam;
+    private static ScheduledExecutorService timer; // 
+    private static VideoCapture cam; // Dispositivo
+    private static int ID_DEVICE = 0; // ID de dispositivo
+    private static int DELAY = 33; // Tiempo en milisegundos
     
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args)
     {
-        // Inicializamos el detector de rostros
-        FaceDetector face = new FaceDetector();
         // creamos la matriz para los frame
         Mat frame = new Mat();
         // accedemos al dispositivo
@@ -46,36 +46,57 @@ public class Main
         view.set(640, 480);
         
         // Abrimos la camara
-        cam.open(0);
-        
-        // Verificamos que accedemos al dispositivo
-        if(cam.isOpened()){
-            // Creamos un hilo para trabajar, tomando un frame cada 30 segundos
-            Runnable frameGrabber = new Runnable() {
-                @Override
-                public void run() {
-                    // Capturamos el frame
-                    cam.read(frame);
-
-                    // Detectamos los rostros
-                    view.show(face.FaceDetect(frame));
-                }
-            };
+        startCamera();
             
-            timer = Executors.newSingleThreadScheduledExecutor();
-            timer.scheduleAtFixedRate(frameGrabber, 0, 33, TimeUnit.MILLISECONDS);    
-        } else {
-            stopCamera();
-            // Mostramos error de carga
-            System.out.println("Error al inicializar el dispositivo");
-        }
+        // Creamos un hilo para trabajar, tomando un frame segun el delay
+        Runnable frameGrabber = new Runnable() {
+            @Override
+            public void run() {
+                // Verificamos que accedemos al dispositivo
+                if(cam.isOpened()){
+                    // verificamos el estado de la ventana
+                    if(view.getCtrWindow()){
+                        // Detenemos la camara
+                        stopCamera();
+                        // Cerramos la ventana
+                        view.close();
+                    }
+                    // Verificamos el estado de la camara
+                    if(view.getCtrCam()){
+                        // Inicializamos el tiempo transcurrido
+                        long startTime = System.currentTimeMillis();
+
+                        // Capturamos el frame
+                        cam.read(frame);
+
+                        // Detectamos los rostros
+                        view.show(frame);
+
+                        // Obtenemos el tiempo de proceso
+                        long processTime = System.currentTimeMillis() - startTime;
+                        System.out.println("Time process: "+processTime+" ms");
+                    }
+                } else {
+                    // Detenemos la camara
+                    stopCamera();
+                    // Mostramos error de carga
+                    System.out.println("Error al inicializar el dispositivo");
+                }
+            }
+        };
+
+        timer = Executors.newSingleThreadScheduledExecutor();
+        timer.scheduleAtFixedRate(frameGrabber, 0, DELAY, TimeUnit.MILLISECONDS);    
     }
     
+    /**
+     * Detiene la camara
+     */
     private static void stopCamera(){
         // verificamos si el tiempo esta corriendo
         if (timer!=null && !timer.isShutdown()){
             try{
-                // De tenemos el tiempo
+                // Detenemos el tiempo
                 timer.shutdown();
                 timer.awaitTermination(33, TimeUnit.MILLISECONDS);
             } catch (InterruptedException e) {
@@ -88,5 +109,14 @@ public class Main
             // release the camera
             cam.release();
 	}
+    }
+    
+    /**
+     * Inicia la camara
+     */
+    private static void startCamera()
+    {
+        // Abrimos el dispositivo
+        cam.open(ID_DEVICE);
     }
 }

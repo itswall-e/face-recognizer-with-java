@@ -33,8 +33,8 @@ public class SmileDetector extends Detector
         smileHaar = new CascadeClassifier();
         
         // Inicializamos las propiedades
-        scaleFactor = 1.7;
-        minNeighbors = 8;
+        scaleFactor = 1.05;
+        minNeighbors = 4;
         
         // Cargamos los clasificadores
         loadClassifiers();

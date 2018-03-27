@@ -39,8 +39,8 @@ public class FaceDetector extends Detector
         perfilFaceHaar = new CascadeClassifier();
         
         // Inicializamos las propiedades
-        scaleFactor = 1.1;
-        minNeighbors = 4;
+        scaleFactor = 1.05;
+        minNeighbors = 1;
         
         // Cargamos los clasificadores
         loadClassifiers();
@@ -60,8 +60,9 @@ public class FaceDetector extends Detector
      * Detecta los rostros
      * 
      * @param m Matriz donde reconoceremos los rostros
+     * @param option Opciones de deteccion [0-face,1-eye,2-smile]
      */
-    public Mat FaceDetect(Mat m)
+    public Mat FaceDetect(Mat m, boolean[] option)
     {
         // Matriz para los objetos detectados (rostros)
         MatOfRect faces = new MatOfRect();
@@ -96,14 +97,25 @@ public class FaceDetector extends Detector
         
         // verificamos si hay rostros para buscar ojos
         if(!faces.empty()){
-            ed.eyesDetector(m, grayFrame, faces);
+            // verificamos si esta activa la deteccion de ojos
+            if(option[1])
+                // Detectamos los ojos
+                ed.eyesDetector(m, grayFrame, faces);
         }
         
         // verificamos si hay rostros para buscar sonrisa
         if(!faces.empty()){
-            sd.smileDetector(m, grayFrame, faces);
+            // verificamos si esta activa la deteccion de sonrisas
+            if(option[2])
+                // Detectamos las sonrisas
+                sd.smileDetector(m, grayFrame, faces);
         }
         
-        return objectDraw(m, faces, new Scalar(0, 255, 0), true);
+        // verificamos si esta activa la deteccion de rostro
+        if(option[0])
+            // Dibujamos los bordes de los rostros detectados
+            return objectDraw(m, faces, new Scalar(0, 255, 0), true);
+        else
+            return m;
     }
 }

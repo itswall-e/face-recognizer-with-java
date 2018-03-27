@@ -30,8 +30,8 @@ public class Detector
     public Detector()
     {
         // Valores por defecto
-        scaleFactor = 1.1;
-        minNeighbors = 8;
+        scaleFactor = 1.05;
+        minNeighbors = 1;
         minSize = 0;
         flags = 0 | Objdetect.CASCADE_SCALE_IMAGE;
         path = "resources/haarcascades/";

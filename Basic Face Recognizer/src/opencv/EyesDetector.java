@@ -32,8 +32,8 @@ public class EyesDetector extends Detector
         eyesHaar = new CascadeClassifier();
         
         // Inicializamos las propiedades
-        scaleFactor = 1.1;
-        minNeighbors = 8;
+        scaleFactor = 1.05;
+        minNeighbors = 4;
         
         // Cargamos los clasificadores
         loadClassifiers();
