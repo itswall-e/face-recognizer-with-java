@@ -30,3 +30,9 @@ hs_err_pid*
 /Template/build/
 /Template/dist/
 /Motion Detector/build/
+/Template - copia/nbproject/private/
+/Training Face Recognizer/nbproject/private/
+/Basic Face Recognizer - copia/build/
+/Basic Face Recognizer - copia/nbproject/private/
+/Training Face Recognizer/build/
+/Training Face Recognizer/dist/
