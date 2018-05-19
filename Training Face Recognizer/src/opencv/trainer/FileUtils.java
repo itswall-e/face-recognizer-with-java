@@ -3,12 +3,15 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package opencv;
+package opencv.trainer;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -260,4 +263,63 @@ public class FileUtils
             saveArrAsImage(fnm, imgs[i], imgWidth);
         }
     }
+    
+    /**
+     * Face Recognition
+     */
+    
+    /**
+     * Carga una imagen desde el ordenador
+     * 
+     * @param name Path de la imagen a cargar
+     * 
+     * @return Imagen cargada
+     */
+    public static BufferedImage loadImage(String name)
+    {
+        // Creamos una buffered image para almacenar la imagen
+        BufferedImage image = null;
+        
+        try {
+            // Obtenemos la imagen
+            image = ImageIO.read( new File(name) );
+            System.out.println("Reading image " + name);
+        } catch (Exception e) {
+            System.out.println("Could not read image from " + name);
+        }
+        return image;
+    }
+    
+    /**
+     * Obtenemos los eigenfaces de entrenamiento desde el objeto almacenado
+     * en memoria
+     * 
+     * @return Devuelve los eigenfaces alamacenados
+     */
+    public static FaceBundle readCache()
+    {
+        // Objeto para almacenar los eigenfaces
+        FaceBundle bundle = null;
+        
+        try {
+            // Abrimos un stream para acceder al objeto
+            ObjectInputStream ois = new ObjectInputStream(
+                    new FileInputStream(EF_CACHE));
+            // Obtenemos los eigenfaces
+            bundle = (FaceBundle) ois.readObject();
+            // Cerramos el stream
+            ois.close();
+            System.out.println("Using cache: " + EF_CACHE);
+            
+            return bundle;
+        } catch(FileNotFoundException e) {
+            System.out.println("Missing cache: " + EF_CACHE);
+        } catch (IOException e) {
+            System.out.println("Read error for cache: " + EF_CACHE);
+        } catch (ClassNotFoundException e) {
+            System.out.println(e);
+        }
+        
+        return bundle;
+  }
 }

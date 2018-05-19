@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package opencv;
+package opencv.detector;
 
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfRect;
@@ -13,24 +13,23 @@ import org.opencv.core.Size;
 import org.opencv.objdetect.CascadeClassifier;
 
 /**
- * Detecta sonrisa en un rostro, el rostro debe ser enviado al método en una
+ * Detecta ojos en un rostro, el rostro debe ser enviado al método en una
  * matriz de tipo ROI (region of interes).
  * 
  * @author Paulo Andrade
  * @version 1.0.0
  */
-public class SmileDetector extends Detector
+public class EyesDetector extends Detector
 {
-    private final CascadeClassifier smileHaar; // clasificadores
+    private final CascadeClassifier eyesHaar; // clasificadores
     
     /**
      * Constructor
      */
-    public SmileDetector()
+    public EyesDetector()
     {
-        super();
         // Inicializamos los clasificadores
-        smileHaar = new CascadeClassifier();
+        eyesHaar = new CascadeClassifier();
         
         // Inicializamos las propiedades
         scaleFactor = 1.05;
@@ -44,22 +43,22 @@ public class SmileDetector extends Detector
      * Cargamos los clasificadores con los que vamos a trabajar
      */
     private void loadClassifiers()
-    {
+    {   
         // cargamos los clasificadores cascada
-        smileHaar.load(path+"haarcascade_smile.xml");
+        eyesHaar.load(path+"haarcascade_eye.xml");
     }
     
     /**
-     * Detector de sonrisa en un rostro
+     * Detector de ojos en un rostro
      * 
      * @param m Matriz original
      * @param grayFrame Matriz original en escala de grises
      * @param faces Matriz de rostros detectados
      */
-    public void smileDetector(Mat m, Mat grayFrame, MatOfRect faces)
+    public void eyesDetector(Mat m, Mat grayFrame, MatOfRect faces)
     {
         // Matriz para los objetos detectados (ojos)
-        MatOfRect smile = new MatOfRect();
+        MatOfRect eyes = new MatOfRect();
         
         // Convertimos la matriz en un array (vector)
         Rect[] facesArray = faces.toArray();
@@ -72,14 +71,14 @@ public class SmileDetector extends Detector
             Mat roiGray = grayFrame.submat(rectCrop);
             Mat roiColor = m.submat(rectCrop);
             
-            // Obtenemos el tamaño minimo (25%)
-            minSize = calcSize(roiGray, 0.25F);
+            // Obtenemos el tamaño minimo
+            minSize = calcSize(roiGray, 0.15F);
             
-            smileHaar.detectMultiScale(roiGray, smile, scaleFactor, minNeighbors,
+            eyesHaar.detectMultiScale(roiGray, eyes, scaleFactor, minNeighbors,
                     flags, new Size(minSize, minSize), new Size());
 
             // Dibujamos los rectangulos para los ojos
-            objectDraw(roiColor, smile, new Scalar(255, 0, 0));
+            objectDraw(roiColor, eyes, new Scalar(0, 0, 255));
         }
     }
 }

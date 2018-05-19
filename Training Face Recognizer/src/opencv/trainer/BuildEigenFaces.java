@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package opencv;
+package opencv.trainer;
 
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -107,7 +107,7 @@ public class BuildEigenFaces
     }
     
     /**
-     * Convierte un array de imagenes en una matriz de imagenes normalizadas.
+     * Convierte un array de imagenes en una matriz de imagenes  normalizadas.
      * Cada fila es una imagen y el numero de columnas son los pixeles de la
      * imagen
      * 
@@ -169,19 +169,18 @@ public class BuildEigenFaces
         // Ordenamos las llaves en forma desendente
         ArrayList<Double> sortedKeyList = sortKeysDescending(table);
         
-        // 
+        // Actualizamos los eigen vectores a partir de las llaves de la lista
         updateEgVecs(egVecs, table, egDvals, sortedKeyList);
-       // use the sorted key list to update the Eigenvectors array
 
-    // convert the sorted key list into an array
-    Double[] sortedKeys = new Double[sortedKeyList.size()];
-    sortedKeyList.toArray(sortedKeys); 
+        // Convertimos la lista de llaves ordenadas en un array
+        Double[] sortedKeys = new Double[sortedKeyList.size()];
+        sortedKeyList.toArray(sortedKeys);
 
-    // use the sorted keys array to update the Eigenvalues array
-    for (int i = 0; i < sortedKeys.length; i++)
-      //egVals[i] = sortedKeys[i].doubleValue();
-        egVals[i] = sortedKeys[i];
-
+        // Usamos el array de llaves ordenadas para actualizar el array de eigenvalues
+        for (int i = 0; i < sortedKeys.length; i++){
+            //egVals[i] = sortedKeys[i].doubleValue();
+            egVals[i] = sortedKeys[i];
+        }
     }
    
     /**
@@ -287,12 +286,9 @@ public class BuildEigenFaces
      * @return Devuelve una matriz con imagenes de entrenamiento normalizadas
      */
     private static double[][] getNormImages(double[][] weights, 
-                                  Matrix2D egFacesSubMat, Matrix2D egValsSubMat)
-  /* calculate weights x eigenfaces, which generates mean-normalized traimning images;
-     there is one image per row in the returned array
-  */
-  {
-    double[] egDValsSub = egValsSubMat.flatten();
+            Matrix2D egFacesSubMat, Matrix2D egValsSubMat)
+    {
+        double[] egDValsSub = egValsSubMat.flatten();
     Matrix2D tempEvalsMat = new Matrix2D(weights.length, egDValsSub.length);
     tempEvalsMat.replaceRowsWithArray(egDValsSub);
 

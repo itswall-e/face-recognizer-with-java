@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package opencv;
+package opencv.trainer;
 
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;

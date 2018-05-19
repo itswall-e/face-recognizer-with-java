@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package opencv;
+package opencv.detector;
 
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfRect;

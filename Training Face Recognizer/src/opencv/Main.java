@@ -9,6 +9,9 @@ package opencv;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import opencv.recognition.FaceRecognition;
+import opencv.recognition.MatchResult;
+import opencv.trainer.BuildEigenFaces;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.videoio.VideoCapture;
@@ -27,6 +30,7 @@ public class Main
     private static VideoCapture cam; // Dispositivo
     private static final int ID_DEVICE = 0; // ID de dispositivo
     private static final int DELAY = 33; // Tiempo en milisegundos
+    private static FaceRecognition fr;
     
     /**
      * @param args the command line arguments
@@ -36,6 +40,16 @@ public class Main
         // PCA pca = new PCA();
         // pca.example();
         // BuildEigenFaces.build(0);
+        fr = new FaceRecognition(3);
+        MatchResult result = fr.match("resources/frame/paulo1.png");
+        if(result == null){
+            System.out.println("No match found");
+        } else {
+            System.out.println();
+            System.out.print("Matches image in " + result.getMatchFileName());
+            System.out.printf("; distance = %.4f\n", result.getMatchDistance());
+            System.out.println("Matched name: " + result.getName() );
+        }
         // creamos la matriz para los frame
         Mat frame = new Mat();
         // accedemos al dispositivo
