@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package opencv;
+package opencv.trainer;
 
 import cern.colt.matrix.DoubleMatrix2D;
 import cern.colt.matrix.impl.DenseDoubleMatrix2D;
@@ -268,8 +268,15 @@ public class Matrix2D extends DenseDoubleMatrix2D
         return new Matrix2D(this.zMult(mat, null));
     }
 
+    /**
+     * Reemplaza todos los valores de celda del receptor con los valores de otra
+     * matriz.
+     * 
+     * @param mat 
+     */
     public void multiplyElementWise(Matrix2D mat)
     {
+        // Remplazamos
         assign(mat, Functions.functions.mult);
     }
 
@@ -287,14 +294,26 @@ public class Matrix2D extends DenseDoubleMatrix2D
         return new Matrix2D(this.viewDice());
     }
 
+    /**
+     * Aplanamos la matriz (la convertimos en un array)
+     * 
+     * @return Devuelve un array con los datos aplanados
+     */
     public double[] flatten()
     {
+        // Creamos el array para almacenar los datos aplanados
         double[] res = new double[this.rows * this.columns];
+        
+        // Control del indice del array
         int i = 0;
+        
+        // Recorremos la matriz
         for (int row = 0; row < this.rows; row++) {
             for (int col = 0; col < this.columns; col++)
+                // Almacenamos los datos en el array
                 res[i++] = get(row, col);
         }
+        
         return res;
     }	
 

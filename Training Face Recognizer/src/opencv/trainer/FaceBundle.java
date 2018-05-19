@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package opencv;
+package opencv.trainer;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -21,8 +21,8 @@ import java.util.ArrayList;
  */
 public class FaceBundle implements Serializable
 {
-    private double[][] imageRows; // each row contains a training image 
-    private ArrayList<String> imageFnms;	
+    private double[][] imagesMat; // each row contains a training image 
+    private ArrayList<String> namesImage;	
     private double[] avgImage; // average training image
     private double[][] eigenFaces; // the eigenvectors for the face images
     private double[] eigenValues;
@@ -42,8 +42,8 @@ public class FaceBundle implements Serializable
     public FaceBundle(ArrayList<String> nms, double[][] ims, double[] avgImg, 
                       double[][] facesMat, double[] evals, int w, int h)
     {
-        imageFnms = nms;
-        imageRows = ims;		
+        namesImage = nms;
+        imagesMat = ims;		
         avgImage = avgImg;
         eigenFaces = facesMat;
         eigenValues = evals;
@@ -57,7 +57,7 @@ public class FaceBundle implements Serializable
 
     public double[][] getImages()
     {
-        return imageRows;
+        return imagesMat;
     }
     public double[][] getEigenFaces()
     {
@@ -75,9 +75,9 @@ public class FaceBundle implements Serializable
     {
         return eigenValues;
     }
-    public ArrayList<String> getImageFnms()
+    public ArrayList<String> getNamesImage()
     {
-        return imageFnms;
+        return namesImage;
     }
     public int getImageWidth()
     {
@@ -100,7 +100,7 @@ public class FaceBundle implements Serializable
     public double[][] calcWeights(int numEFs)
     {
         // Creamos una matriz para almacenar los datos
-        Matrix2D imgsMat = new Matrix2D(imageRows);
+        Matrix2D imgsMat = new Matrix2D(imagesMat);
 
         // Creamos una copia de los eigen faces
         Matrix2D facesMat = new Matrix2D(eigenFaces);

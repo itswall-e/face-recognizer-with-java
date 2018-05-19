@@ -18,6 +18,14 @@
 *.tar.gz
 *.rar
 
+# Personal
+*/**.png
+*/**.cache
+/Training Face Recognizer/resources/eigen.cache
+/Training Face Recognizer/resources/trainingImages/
+/Training Face Recognizer/resources/reconstructed/
+/Training Face Recognizer/resources/eigenfaces/
+
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 /Basic Face Recognizer/nbproject/private/
