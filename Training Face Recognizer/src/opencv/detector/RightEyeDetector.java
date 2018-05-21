@@ -13,23 +13,23 @@ import org.opencv.core.Size;
 import org.opencv.objdetect.CascadeClassifier;
 
 /**
- * Detecta ojos en un rostro, el rostro debe ser enviado al método en una
+ * Detecta el ojo derecho en un rostro, el rostro debe ser enviado al método en una
  * matriz de tipo ROI (region of interes).
  * 
  * @author Paulo Andrade
  * @version 1.0.0
  */
-public class EyesDetector extends Detector
+public class RightEyeDetector extends Detector
 {
-    private final CascadeClassifier eyesHaar; // clasificadores
+    private final CascadeClassifier rightEyeHaar; // clasificadores
     
     /**
      * Constructor
      */
-    public EyesDetector()
+    public RightEyeDetector()
     {
         // Inicializamos los clasificadores
-        eyesHaar = new CascadeClassifier();
+        rightEyeHaar = new CascadeClassifier();
         
         // Inicializamos las propiedades
         scaleFactor = 1.1;
@@ -45,7 +45,7 @@ public class EyesDetector extends Detector
     private void loadClassifiers()
     {   
         // cargamos los clasificadores cascada
-        eyesHaar.load(path+"haarcascade_eye.xml");
+        rightEyeHaar.load(path+"haarcascade_righteye_2splits.xml");
     }
     
     /**
@@ -55,7 +55,7 @@ public class EyesDetector extends Detector
      * @param grayFrame Matriz original en escala de grises
      * @param faces Matriz de rostros detectados
      */
-    public void eyesDetector(Mat m, Mat grayFrame, MatOfRect faces)
+    public void rightEyeDetector(Mat m, Mat grayFrame, MatOfRect faces)
     {
         // Matriz para los objetos detectados (ojos)
         MatOfRect eyes = new MatOfRect();
@@ -74,7 +74,7 @@ public class EyesDetector extends Detector
             // Obtenemos el tamaño minimo
             minSize = calcSize(roiGray, 0.15F);
             
-            eyesHaar.detectMultiScale(roiGray, eyes, scaleFactor, minNeighbors,
+            rightEyeHaar.detectMultiScale(roiGray, eyes, scaleFactor, minNeighbors,
                     flags, new Size(minSize, minSize), new Size());
 
             // Dibujamos los rectangulos para los ojos

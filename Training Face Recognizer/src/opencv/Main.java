@@ -11,7 +11,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import opencv.recognition.FaceRecognition;
 import opencv.recognition.MatchResult;
-import opencv.trainer.BuildEigenFaces;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.videoio.VideoCapture;

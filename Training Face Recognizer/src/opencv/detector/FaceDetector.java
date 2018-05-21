@@ -21,6 +21,8 @@ import org.opencv.objdetect.CascadeClassifier;
 public class FaceDetector extends Detector
 {
     EyesDetector ed;
+    LeftEyeDetector led;
+    RightEyeDetector red;
     SmileDetector sd;
     private final CascadeClassifier faceHaar; // Clasificadores 
     private final CascadeClassifier perfilFaceHaar;
@@ -33,6 +35,8 @@ public class FaceDetector extends Detector
         // Inicializamos las clases externas
         ed = new EyesDetector();
         sd = new SmileDetector();
+        led = new LeftEyeDetector();
+        red = new RightEyeDetector();
         
         // Inicializamos los clasificadores
         faceHaar = new CascadeClassifier();
@@ -98,9 +102,12 @@ public class FaceDetector extends Detector
         // verificamos si hay rostros para buscar ojos
         if(!faces.empty()){
             // verificamos si esta activa la deteccion de ojos
-            if(option[1])
-                // Detectamos los ojos
-                ed.eyesDetector(m, grayFrame, faces);
+            if(option[1]){
+                // Detectamos los dos ojos
+                // ed.eyesDetector(m, grayFrame, faces);
+                led.leftEyeDetector(m, grayFrame, faces);
+                red.rightEyeDetector(m, grayFrame, faces);
+            }
         }
         
         // verificamos si hay rostros para buscar sonrisa
