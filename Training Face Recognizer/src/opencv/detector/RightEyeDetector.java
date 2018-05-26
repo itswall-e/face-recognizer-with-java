@@ -54,8 +54,9 @@ public class RightEyeDetector extends Detector
      * @param m Matriz original
      * @param grayFrame Matriz original en escala de grises
      * @param faces Matriz de rostros detectados
+     * @param ctr control de entrenamiento
      */
-    public void rightEyeDetector(Mat m, Mat grayFrame, MatOfRect faces)
+    public void rightEyeDetector(Mat m, Mat grayFrame, MatOfRect faces, boolean ctr)
     {
         // Matriz para los objetos detectados (ojos)
         MatOfRect eyes = new MatOfRect();
@@ -77,8 +78,11 @@ public class RightEyeDetector extends Detector
             rightEyeHaar.detectMultiScale(roiGray, eyes, scaleFactor, minNeighbors,
                     flags, new Size(minSize, minSize), new Size());
 
-            // Dibujamos los rectangulos para los ojos
-            objectDraw(roiColor, eyes, new Scalar(0, 0, 255));
+            // Dibujamos solo si estamos en modo entrenamiento
+            if(ctr){
+                // Dibujamos los rectangulos para los ojos
+                objectDraw(roiColor, eyes, new Scalar(0, 0, 255));
+            }
         }
     }
 }

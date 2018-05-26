@@ -8,9 +8,11 @@ package opencv.trainer;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
 import java.awt.image.Raster;
 import java.awt.image.WritableRaster;
 import java.util.ArrayList;
+import org.opencv.core.Mat;
 
 /**
  *
@@ -159,5 +161,24 @@ public class ImageUtils
         img.getData().getPixels(0, 0, imgWidth, imgHeight, imgArr);
         
         return imgArr;
+    }
+    
+    /**
+     * Convertimos de Mat (MAtriz opencv) a Buffered Image
+     * 
+     * @param m Matriz con la imagen a transformar
+     * 
+     * @return Retorna una imagen en formato bufferred image
+     */
+    public static BufferedImage matToBufferedImage(Mat m)
+    {
+        // Creamos una imagen vacia en formato buffered image
+        BufferedImage bi = new BufferedImage(m.width(), m.height(), BufferedImage.TYPE_BYTE_GRAY);
+
+        // Get the BufferedImage's backing array and copy the pixels directly into it
+        byte[] data = ((DataBufferByte) bi.getRaster().getDataBuffer()).getData();
+        m.get(0, 0, data);
+        
+        return bi;
     }
 }

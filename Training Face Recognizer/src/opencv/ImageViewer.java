@@ -147,6 +147,7 @@ public class ImageViewer extends JFrame implements ActionListener
         btnStart.addActionListener(this);
         btnClose.addActionListener(this);
         btnTrain.addActionListener(this);
+        btnProcess.addActionListener(this);
         
         // Mostramos JFrame
         setVisible(true);
