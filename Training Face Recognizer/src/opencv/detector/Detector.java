@@ -5,8 +5,10 @@
  */
 package opencv.detector;
 
+import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfRect;
+import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
@@ -111,5 +113,18 @@ public class Detector
         }
         
         return objectSize;
+    }
+    
+    /**
+     * Imprime un texto en pantalla
+     * 
+     * @param m Matriz donde imprimiremos el texto
+     * @param txt Texto a imprimir
+     * @param p Punto X,Y para la colocacion del texto
+     */
+    protected void printText(Mat m, String txt, Point p)
+    {
+        Imgproc.putText(m, txt, new Point(p.x, p.y),
+            Core.FONT_HERSHEY_COMPLEX, 1.0 ,new  Scalar(0, 255, 0));
     }
 }

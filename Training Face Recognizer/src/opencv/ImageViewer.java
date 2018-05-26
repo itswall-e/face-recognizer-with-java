@@ -16,7 +16,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JRadioButton;
+import javax.swing.JTextField;
 import org.opencv.core.Mat;
 
 /**
@@ -28,11 +28,12 @@ public class ImageViewer extends JFrame implements ActionListener
     FaceDetector face;
     JPanel mainPanel, camPanel, optionPanel;
     JLabel lblImg;
-    JButton btnStop, btnStart, btnClose;
-    JRadioButton rFace, rEye, rSmile;
+    JButton btnStop, btnStart, btnClose, btnTrain, btnProcess;
     String title;
+    JTextField txtName;
     private int width, height;
     private boolean ctrCam, ctrWindow;
+    private boolean ctr;
     
     /**
      * Constructor
@@ -46,6 +47,7 @@ public class ImageViewer extends JFrame implements ActionListener
         height = 600; // Alto del JFrame (default 500)
         ctrCam = false; // Control para activar/deactivar la camara
         ctrWindow = false; // Control para cerrar la ventana
+        ctr = false; // Control del ciclo de entrenamiento
         
         // Inicializamos el detector de rostros
         face = new FaceDetector();
@@ -116,18 +118,17 @@ public class ImageViewer extends JFrame implements ActionListener
         optionPanel.setBorder(BorderFactory.createTitledBorder("Opciones"));
         optionPanel.setLayout(null);
         
-        rFace = new JRadioButton("Face");
-        rFace.setBounds(10, 20, 120, 20);
-        rFace.setBackground(Color.WHITE);
-        rFace.setSelected(true);
+        btnTrain = new JButton("Training");
+        btnTrain.setBounds(10, 20, 120, 20);
+        btnTrain.setEnabled(false);
         
-        rEye = new JRadioButton("Eyes");
-        rEye.setBounds(10, 50, 120, 20);
-        rEye.setBackground(Color.WHITE);
+        txtName = new JTextField();
+        txtName.setBounds(10, 50, 120, 20);
+        txtName.setVisible(false);
         
-        rSmile = new JRadioButton("Smile");
-        rSmile.setBounds(10, 80, 120, 20);
-        rSmile.setBackground(Color.WHITE);
+        btnProcess = new JButton("Retrain");
+        btnProcess.setBounds(10, 80, 120, 20);
+        btnProcess.setVisible(false);
         
         // Añadimos componentes
         add(mainPanel);
@@ -137,14 +138,15 @@ public class ImageViewer extends JFrame implements ActionListener
         camPanel.add(btnStart);
         camPanel.add(btnClose);
         mainPanel.add(optionPanel);
-        optionPanel.add(rFace);
-        optionPanel.add(rEye);
-        optionPanel.add(rSmile);
+        optionPanel.add(btnTrain);
+        optionPanel.add(txtName);
+        optionPanel.add(btnProcess);
         
         // Eventos
         btnStop.addActionListener(this);
         btnStart.addActionListener(this);
         btnClose.addActionListener(this);
+        btnTrain.addActionListener(this);
         
         // Mostramos JFrame
         setVisible(true);
@@ -168,16 +170,21 @@ public class ImageViewer extends JFrame implements ActionListener
      * @param m matriz a mostrar en pantalla
      */
     public void show(Mat m)
-    {
-        // Obtenemos las opiones de deteccion
-        boolean[] option = new boolean[]{ false, false, false };
-        if(rFace.isSelected()) option[0] = true;
-        if(rEye.isSelected()) option[1] = true;
-        if(rSmile.isSelected()) option[2] = true;
-        
+    {   
         // aplicamos el detector
-        m = face.FaceDetect(m, option);
+        m = face.FaceDetect(m, ctr);
         
+        // verificamos si es necesario ingresar un nombre
+        if(face.getCount() == 5){
+            // Mostramos la caja de texto
+            txtName.setVisible(true);
+            btnProcess.setVisible(true);
+            // Desactivamos los botones
+            btnClose.setEnabled(false);
+            btnStop.setEnabled(false);
+        }
+        
+            
         // Convertimos la matriz en imagen
         Image img = ImageProcessor.toBufferedImage(m);
         
@@ -202,6 +209,12 @@ public class ImageViewer extends JFrame implements ActionListener
             btnStop.setEnabled(false);
             btnStart.setEnabled(true);
             btnClose.setEnabled(true);
+            btnTrain.setEnabled(false);
+            
+            // verificamos el control
+            if(ctr){
+                ctr = false;
+            }
             
             // Actualizamos el control
             ctrCam = !ctrCam;
@@ -210,11 +223,42 @@ public class ImageViewer extends JFrame implements ActionListener
             btnStart.setEnabled(false);
             btnStop.setEnabled(true);
             btnClose.setEnabled(false);
+            btnTrain.setEnabled(true);
             
             // Actualizamos el control
             ctrCam = !ctrCam;
         } else if(e.getSource().equals(btnClose)){
             ctrWindow = !ctrWindow;
+        } else if(e.getSource().equals(btnTrain)){
+            // Obtenemos el control del boton
+            ctr = !ctr;
+            
+            // Asignamos control al boton
+            btnTrain.setEnabled(false);
+        } else if(e.getSource().equals(btnProcess)){
+            // Obtenemos el texto
+            String name = txtName.getText();
+            
+            // verificamos el tamaño
+            if(name.length() > 4){
+                // Actualizamos contador
+                face.setCount(6);
+                // Bloqueamos boton
+                btnProcess.setEnabled(false);
+                // Comenzamos proceso de entrenamiento
+                if(face.process(name)){
+                    // Restablecemos los procesos
+                    btnProcess.setEnabled(true);
+                    btnProcess.setVisible(false);
+                    txtName.setText("");
+                    txtName.setVisible(false);
+                    btnTrain.setEnabled(true);
+                    ctr = false;
+                    face.setCount(0);
+                    btnClose.setEnabled(true);
+                    btnStop.setEnabled(true);
+                }
+            }
         }
     }
 }
