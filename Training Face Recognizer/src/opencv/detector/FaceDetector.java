@@ -5,9 +5,13 @@
  */
 package opencv.detector;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
+import opencv.recognition.FaceRecognition;
+import opencv.recognition.MatchResult;
 import opencv.trainer.BuildEigenFaces;
 import opencv.trainer.FileUtils;
+import opencv.trainer.ImageUtils;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfRect;
 import org.opencv.core.Point;
@@ -35,6 +39,7 @@ public class FaceDetector extends Detector
     private int count;
     private int temporizer;
     private static final String TRAINING_DIR = "resources/temp"; // Directorio de las imagenes de entrenamiento
+    private FaceRecognition fr;
     
     /**
      * Constructor
@@ -198,11 +203,62 @@ public class FaceDetector extends Detector
             }
         }
         
+        /**
+         * Proceso de reconocimiento facial
+         */
+        
+        // verificamos si existen rostros detectados en pantalla
+        if(!faces.empty() && !ctr){
+            // Si existen rostros, empezamos el proceso de detección
+            fr = new FaceRecognition(3); // Instanciamos un objeto del reconocedor
+            
+            // Convertimos la matriz en un array (vector)
+            Rect[] facesArray = faces.toArray();
+
+            // trabajamos en cada uno de los rostros
+            for(Rect rect: facesArray){
+                // Obtenemos el rectangulo donde vamos a trabajar
+                Rect rectCrop = new Rect(rect.x, rect.y , rect.width, rect.height);
+
+                // Obtenemos la matriz roi
+                Mat roiGray = grayFrame.submat(rectCrop);
+                
+                // Redimensionamos la imagen
+                Mat resizeImg = new Mat();
+                Size size = new Size(125, 150);
+                Imgproc.resize(roiGray, resizeImg, size);
+                
+                // Convertimos de mat a bufferred image
+                BufferedImage bi = ImageUtils.matToBufferedImage(resizeImg);
+                
+                // Buscamos coincidencias
+                MatchResult result = fr.match(bi);
+                
+                // Verificamos si hubo coincidencias
+                if(result == null){
+                    // Mostramos mensaje
+                    printText(m, "Unknow", rect.tl());
+                    System.out.println("No match found");
+                } else {
+                    // Mostramos mensaje
+                    printText(m, result.getName(), rect.tl());
+                    System.out.println();
+                    System.out.print("Matches image in " + result.getMatchFileName());
+                    System.out.printf("; distance = %.4f\n", result.getMatchDistance());
+                    System.out.println("Matched name: " + result.getName() );
+                }
+            }
+        }
+        
+        /**
+         * Termina proceso de reconocimiento facial
+         */
+        
         // verificamos si hay rostros para buscar ojos
         if(!faces.empty()){
             // Detectamos los dos ojos
             // ed.eyesDetector(m, grayFrame, faces);
-            led.leftEyeDetector(m, grayFrame, faces);
+            led.leftEyeDetector(m, grayFrame, faces, ctr);
             
             if(ctr && count == 2){
                 // Mostramos texto
@@ -235,7 +291,7 @@ public class FaceDetector extends Detector
                 }
             }
             
-            red.rightEyeDetector(m, grayFrame, faces);
+            red.rightEyeDetector(m, grayFrame, faces, ctr);
             
             if(ctr && count == 3){
                 // Mostramos texto
@@ -271,7 +327,7 @@ public class FaceDetector extends Detector
         // verificamos si hay rostros para buscar sonrisa
         if(!faces.empty()){
             // Detectamos las sonrisas
-            sd.smileDetector(m, grayFrame, faces);
+            sd.smileDetector(m, grayFrame, faces, ctr);
             
             if(ctr && count == 4){
                 // Mostramos texto

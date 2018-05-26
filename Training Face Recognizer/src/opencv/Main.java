@@ -39,16 +39,6 @@ public class Main
         // PCA pca = new PCA();
         // pca.example();
         // BuildEigenFaces.build(0);
-        fr = new FaceRecognition(3);
-        MatchResult result = fr.match("resources/frame/paulo1.png");
-        if(result == null){
-            System.out.println("No match found");
-        } else {
-            System.out.println();
-            System.out.print("Matches image in " + result.getMatchFileName());
-            System.out.printf("; distance = %.4f\n", result.getMatchDistance());
-            System.out.println("Matched name: " + result.getName() );
-        }
         // creamos la matriz para los frame
         Mat frame = new Mat();
         // accedemos al dispositivo

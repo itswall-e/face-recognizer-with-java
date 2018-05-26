@@ -62,7 +62,8 @@ public class FaceRecognition
         } else {
             System.out.println("Number of eigenfaces: " + numEFs);
         }
-
+        
+        // Calculamos los pesos de las imagenes de entrenamiento
         weights = bundle.calcWeights(numEFs);
     }
     

@@ -55,8 +55,9 @@ public class SmileDetector extends Detector
      * @param m Matriz original
      * @param grayFrame Matriz original en escala de grises
      * @param faces Matriz de rostros detectados
+     * @param ctr control de entrenamiento
      */
-    public void smileDetector(Mat m, Mat grayFrame, MatOfRect faces)
+    public void smileDetector(Mat m, Mat grayFrame, MatOfRect faces, boolean ctr)
     {
         // Matriz para los objetos detectados (ojos)
         MatOfRect smile = new MatOfRect();
@@ -78,8 +79,11 @@ public class SmileDetector extends Detector
             smileHaar.detectMultiScale(roiGray, smile, scaleFactor, minNeighbors,
                     flags, new Size(minSize, minSize), new Size());
 
-            // Dibujamos los rectangulos para los ojos
-            objectDraw(roiColor, smile, new Scalar(255, 0, 0));
+            // Dibujamos solo si estamos en modo entrenamiento
+            if(ctr){
+                // Dibujamos los rectangulos para los ojos
+                objectDraw(roiColor, smile, new Scalar(255, 0, 0));
+            }
         }
     }
 }
