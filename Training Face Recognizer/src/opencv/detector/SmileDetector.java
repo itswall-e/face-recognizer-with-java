@@ -33,8 +33,8 @@ public class SmileDetector extends Detector
         smileHaar = new CascadeClassifier();
         
         // Inicializamos las propiedades
-        scaleFactor = 1.05;
-        minNeighbors = 4;
+        scaleFactor = 1.1;
+        minNeighbors = 8;
         
         // Cargamos los clasificadores
         loadClassifiers();
@@ -73,7 +73,7 @@ public class SmileDetector extends Detector
             Mat roiColor = m.submat(rectCrop);
             
             // Obtenemos el tamaño minimo (25%)
-            minSize = calcSize(roiGray, 0.25F);
+            minSize = calcSize(roiGray, 0.3F);
             
             smileHaar.detectMultiScale(roiGray, smile, scaleFactor, minNeighbors,
                     flags, new Size(minSize, minSize), new Size());

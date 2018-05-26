@@ -16,6 +16,10 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import javax.imageio.ImageIO;
+import org.opencv.core.Mat;
+import org.opencv.core.Size;
+import org.opencv.imgcodecs.Imgcodecs;
+import org.opencv.imgproc.Imgproc;
 
 /**
  *
@@ -32,6 +36,7 @@ public class FileUtils
 {
     private static final String FILE_EXT = ".png"; // Extension de imagenes
     private static final String TRAINING_DIR = "resources/trainingImages"; // Directorio de las imagenes de entrenamiento
+    private static final String TRAINING_TEMP_DIR = "resources/temp"; // Directorio de las imagenes de entrenamiento
     private static final String EF_CACHE = "resources/eigen.cache"; // Path para la cache de eigen faces
     private static final String EIGENFACES_DIR = "resources/eigenfaces"; // Directorio de imagenes creadas por eigenfaces
     private static final String EIGENFACES_PREFIX = "eigen_"; // Prefijo para las imagenes creadas por eigenfaces
@@ -123,7 +128,7 @@ public class FileUtils
         }
         System.out.println("Loading done\n");
 
-        //
+        // Verificamos que el tamaño de las imagenes sea similar
         ImageUtils.checkImSizes(namesImg, imgs);
     
         return imgs;
@@ -152,13 +157,34 @@ public class FileUtils
             saveArrAsImage(path, egFacesArr[row], imgWidth);
         }
     }
+    
+    /**
+     * Creamos directorio para imagenes del proceso de entrenamiento y
+     * 
+     * @param roiImg Matriz de imagen
+     * @param imgWidth Ancho de la imagen
+     * @param n Indice de la imagen
+     */
+    public static void saveImg(Mat roiImg, int n)
+    {
+        // Creamos la ruta para almacenar la imagen
+        String path = TRAINING_TEMP_DIR + File.separator + EIGENFACES_PREFIX + n + FILE_EXT;
+        
+        // Redimensionamos la imagen
+        Mat resizeImg = new Mat();
+        Size size = new Size(125, 150);
+        Imgproc.resize(roiImg, resizeImg, size);
+        
+        // Almacenamos la imagen
+        Imgcodecs.imwrite(path, resizeImg);
+    }
    
     /**
      * Crea un nuevo directorio, si este ya existe, elimina su contenido
      * 
      * @param dir Ruta del directorio a crear o limpiar
      */
-    private static void makeDirectory(String dir)
+    public static void makeDirectory(String dir)
     {
         // Creamos una instancia con la ruta abstracta al directorio
         File dirF = new File(dir);
